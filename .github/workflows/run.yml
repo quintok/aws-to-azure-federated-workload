@@ -39,5 +39,5 @@ jobs:
                 resource-group-name: ${{ secrets.AZURE_RESOURCE_GROUP }}
                 template-file: infra/azure/main.bicep
                 parameters: |
-                  oidcAudience=${{ steps.deploy-aws-identity-pool.outputs.IdentityPoolId }}
-                  developerProvidedName=${{ steps.deploy-aws-identity-pool.outputs.DeveloperProviderName }}
+                  oidcAudience: ${{ steps.deploy-aws-identity-pool.outputs.IdentityPoolId }}
+                  developerProvidedName: ${{ steps.deploy-aws-identity-pool.outputs.DeveloperProviderName }}
