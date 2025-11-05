@@ -23,6 +23,7 @@ jobs:
                   tenant-id: ${{ secrets.AZURE_TENANT_ID }}
                   allow-no-subscriptions: true
             - name: deploy-aws-identity-pool
+              id: deploy-aws-identity-pool
               uses: aws-actions/aws-cloudformation-github-deploy@v1
               with:
                   name: infra-stack
