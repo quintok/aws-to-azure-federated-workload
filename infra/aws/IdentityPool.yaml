@@ -1,0 +1,17 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  IdentityPool:
+    Type: 'AWS::Cognito::IdentityPool'
+    Properties:
+      IdentityPoolName: !Sub '${AWS::StackName}-identity-pool'
+      DeveloperProviderName: 'login.entra'
+      AllowUnauthenticatedIdentities: false
+
+Outputs:
+  IdentityPoolId:
+    Description: 'The ID of the Cognito Identity Pool'
+    Value: !Ref IdentityPool
+  DeveloperProviderName:
+    Description: 'The Developer Provider Name for the Identity Pool'
+    Value: !GetAtt IdentityPool.DeveloperProviderName

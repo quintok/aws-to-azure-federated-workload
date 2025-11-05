@@ -1,0 +1,5 @@
+{
+    "extensions": {
+        "microsoftgraph": "br:mcr.microsoft.com/bicep/extensions/microsoftgraph/beta:1.0.0"
+    }
+}
