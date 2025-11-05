@@ -31,7 +31,7 @@ jobs:
             - name: deploy-azure-resources
               uses: azure/bicep-deploy@v2
               with:
-                name: 'Azure Workload Identity'
+                name: 'aws-workload-federated-identity'
                 type: 'deployment'
                 operation: 'create'
                 scope: 'resourceGroup'
