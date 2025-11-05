@@ -42,4 +42,3 @@ jobs:
                 parameters: |
                   oidcAudience: ${{ steps.deploy-aws-identity-pool.outputs.IdentityPoolId }}
                   developerProvidedName: ${{ steps.deploy-aws-identity-pool.outputs.DeveloperProviderName }}
-                  ownerApplicationId: ${{ secrets.AZURE_CLIENT_ID }}
