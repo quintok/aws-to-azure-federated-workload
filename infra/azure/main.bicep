@@ -2,6 +2,7 @@ extension microsoftgraph
 
 param oidcAudience string
 param developerProvidedName string
+param ownerApplicationId string
 param appName string = 'my-aws-app'
 param applicationId string = guid(appName, oidcAudience, developerProvidedName)
 
@@ -9,6 +10,9 @@ param applicationId string = guid(appName, oidcAudience, developerProvidedName)
 resource githubApp 'Microsoft.Graph/applications@beta' = {
   displayName: 'my-aws-app'
   uniqueName: appName
+  owners: [
+
+  ]
 
   resource githubFedAuth 'federatedIdentityCredentials@beta' = {
     name: '${appName}/cognito-federated-credential'
