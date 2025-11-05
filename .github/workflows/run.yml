@@ -29,6 +29,16 @@ jobs:
                   name: infra-stack
                   template: infra/aws/IdentityPool.yaml
                   no-fail-on-empty-changeset: "1"
+            - name: create-login
+              id: create-login
+              run: |
+                IDENTITY_ID=$(aws cognito-identity get-open-id-token-for-developer-identity \
+                    --identity-pool-id ${{ steps.deploy-aws-identity-pool.outputs.IdentityPoolId }}  \
+                    --logins ${{ steps.deploy-aws-identity-pool.outputs.DeveloperProviderName }}=${{ secrets.APPLICATION_ID }} \
+                    --region ap-southeast-2 \
+                    --query IdentityId \
+                    --output text)
+                echo "identity=$IDENTITY_ID" >> $GITHUB_OUTPUT
             - name: deploy-azure-resources
               uses: azure/bicep-deploy@v2
               with:
@@ -41,4 +51,4 @@ jobs:
                 template-file: infra/azure/main.bicep
                 parameters: |
                   oidcAudience: ${{ steps.deploy-aws-identity-pool.outputs.IdentityPoolId }}
-                  developerProvidedName: ${{ steps.deploy-aws-identity-pool.outputs.DeveloperProviderName }}
+                  subject: ${{ steps.create-login.outputs.identity }}

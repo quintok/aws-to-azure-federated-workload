@@ -1,9 +1,8 @@
 extension microsoftgraph
 
 param oidcAudience string
-param developerProvidedName string
 param appName string = 'my-aws-app'
-param applicationId string = guid(appName, oidcAudience, developerProvidedName)
+param subject string
 
 // --- GitHub Credentials
 resource githubApp 'Microsoft.Graph/applications@beta' = {
@@ -16,9 +15,6 @@ resource githubApp 'Microsoft.Graph/applications@beta' = {
       oidcAudience
     ]
     issuer: 'https://cognito-identity.amazonaws.com'
-    claimsMatchingExpression: {
-      languageVersion: 1
-      value: 'claims[\'amr\'] eq \'${developerProvidedName}:${oidcAudience}:${applicationId}\''
-    }
+    subject: subject
   }
 }
