@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Properties:
+Parameters:
   DeveloperProviderName:
     Type: String
     Default: 'login.entra'
