@@ -16,6 +16,8 @@ Outputs:
   IdentityPoolId:
     Description: 'The ID of the Cognito Identity Pool'
     Value: !Ref IdentityPool
+    Export:
+      Name: !Sub '${AWS::StackName}-IdentityPoolId'
   DeveloperProviderName:
     Description: 'The Developer Provider Name for the Identity Pool'
     Value: !Ref DeveloperProviderName

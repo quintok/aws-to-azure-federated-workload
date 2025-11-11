@@ -1,8 +1,8 @@
 extension microsoftgraph
 
 param oidcAudience string
-param appName string = 'my-aws-app'
 param subject string
+param appName string = 'my-aws-app'
 
 // --- GitHub Credentials
 resource githubApp 'Microsoft.Graph/applications@beta' = {
