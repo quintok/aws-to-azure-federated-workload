@@ -1,0 +1,70 @@
+---
+on:
+    workflow_dispatch:
+    push:
+        paths: 
+        - 'app/**'
+        branches:
+        - main
+
+jobs:
+    app:
+        permissions:
+            id-token: write
+            contents: read
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: deploy-application
+              run: |
+                echo "Deploying application..."
+                    - name: create-login
+            - uses: aws-actions/configure-aws-credentials@v4
+              with:
+                  role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+                  aws-region: ${{ secrets.AWS_REGION }}
+            - uses: azure/login@v2
+              with:
+                  client-id: ${{ secrets.AZURE_CLIENT_ID }}
+                  tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+                  allow-no-subscriptions: true
+            - id: create-cognito-login
+              run: |
+                DEVELOPER_PROVIDER_NAME=$(aws cloudformation describe-stacks \
+                    --stack-name infra-stack \
+                    --query 'Stacks[0].Outputs[?OutputKey==`DeveloperProviderName`].OutputValue' \
+                    --output text)
+                IDENTITY_POOL_ID=$(aws cloudformation describe-stacks \
+                    --stack-name infra-stack \
+                    --query 'Stacks[0].Outputs[?OutputKey==`IdentityPoolId`].OutputValue' \
+                    --output text)
+                echo "identityPoolId=$IDENTITY_POOL_ID" >> $GITHUB_OUTPUT
+                IDENTITY_ID=$(aws cognito-identity get-open-id-token-for-developer-identity \
+                    --identity-pool-id $IDENTITY_POOL_ID  \
+                    --logins $DEVELOPER_PROVIDER_NAME=${{ secrets.APPLICATION_ID }} \
+                    --region ap-southeast-2 \
+                    --query IdentityId \
+                    --output text)
+                echo "identity=$IDENTITY_ID" >> $GITHUB_OUTPUT
+            - name: deploy-lambda-infra
+              id: deploy-lambda-infra
+              uses: aws-actions/aws-cloudformation-github-deploy@v1
+              with:
+                  name: lambda-infra
+                  template: app/infra/aws/infra.yaml
+                  no-fail-on-empty-changeset: "1"
+                  parameter-overrides: >-
+                    CognitoIdentityPoolId=${{ steps.create-login.outputs.identityPoolId }}
+            - name: deploy-azure-resources
+              uses: azure/bicep-deploy@v2
+              with:
+                name: 'aws-workload-federated-identity'
+                type: 'deployment'
+                operation: 'create'
+                scope: 'resourceGroup'
+                subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+                resource-group-name: ${{ secrets.AZURE_RESOURCE_GROUP }}
+                template-file: infra/azure/main.bicep
+                parameters: |
+                  oidcAudience: ${{ steps.create-login.outputs.identityPoolId }}
+                  subject: ${{ steps.create-login.outputs.identity }}

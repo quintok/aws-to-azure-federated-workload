@@ -17,11 +17,6 @@ jobs:
               with:
                   role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
                   aws-region: ${{ secrets.AWS_REGION }}
-            - uses: azure/login@v2
-              with:
-                  client-id: ${{ secrets.AZURE_CLIENT_ID }}
-                  tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-                  allow-no-subscriptions: true
             - name: deploy-aws-identity-pool
               id: deploy-aws-identity-pool
               uses: aws-actions/aws-cloudformation-github-deploy@v1
@@ -29,26 +24,3 @@ jobs:
                   name: infra-stack
                   template: infra/aws/IdentityPool.yaml
                   no-fail-on-empty-changeset: "1"
-            - name: create-login
-              id: create-login
-              run: |
-                IDENTITY_ID=$(aws cognito-identity get-open-id-token-for-developer-identity \
-                    --identity-pool-id ${{ steps.deploy-aws-identity-pool.outputs.IdentityPoolId }}  \
-                    --logins ${{ steps.deploy-aws-identity-pool.outputs.DeveloperProviderName }}=${{ secrets.APPLICATION_ID }} \
-                    --region ap-southeast-2 \
-                    --query IdentityId \
-                    --output text)
-                echo "identity=$IDENTITY_ID" >> $GITHUB_OUTPUT
-            - name: deploy-azure-resources
-              uses: azure/bicep-deploy@v2
-              with:
-                name: 'aws-workload-federated-identity'
-                type: 'deployment'
-                operation: 'create'
-                scope: 'resourceGroup'
-                subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-                resource-group-name: ${{ secrets.AZURE_RESOURCE_GROUP }}
-                template-file: infra/azure/main.bicep
-                parameters: |
-                  oidcAudience: ${{ steps.deploy-aws-identity-pool.outputs.IdentityPoolId }}
-                  subject: ${{ steps.create-login.outputs.identity }}

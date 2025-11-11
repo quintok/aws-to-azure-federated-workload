@@ -1,0 +1,64 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lambda function with IAM role for Cognito Identity operations
+
+Parameters:
+  CognitoIdentityPoolId:
+    Type: String
+    Description: Cognito Identity Pool ID
+    AllowedPattern: '[a-z0-9-]+:[a-f0-9-]+'
+    ConstraintDescription: Must be a valid Cognito Identity Pool ID
+
+Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: CognitoIdentityPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cognito-identity:GetOpenIdTokenForDeveloperIdentity
+                Resource: !Sub 'arn:aws:cognito-identity:${AWS::Region}:${AWS::AccountId}:identitypool/${CognitoIdentityPoolId}'
+
+  PythonLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub '${AWS::StackName}-function'
+      Runtime: python3.11
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        ZipFile: |
+          # Placeholder - actual code deployed via GitHub Actions
+          def handler(event, context):
+              return {'statusCode': 200, 'body': 'Placeholder'}
+      Timeout: 30
+      MemorySize: 128
+      Environment:
+        Variables:
+          IDENTITY_POOL_ARN: Resource: !Sub 'arn:aws:cognito-identity:${AWS::Region}:${AWS::AccountId}:identitypool/${CognitoIdentityPoolId}'
+
+Outputs:
+  LambdaFunctionArn:
+    Description: Lambda function ARN
+    Value: !GetAtt PythonLambdaFunction.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-FunctionArn'
+  
+  LambdaFunctionName:
+    Description: Lambda function name
+    Value: !Ref PythonLambdaFunction
+    Export:
+      Name: !Sub '${AWS::StackName}-FunctionName'
