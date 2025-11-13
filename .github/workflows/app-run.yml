@@ -4,6 +4,7 @@ on:
     push:
         paths: 
         - 'app/**'
+        - .github/workflows/app-run.yml
         branches:
         - main
 
@@ -47,7 +48,7 @@ jobs:
               uses: aws-actions/aws-cloudformation-github-deploy@v1
               with:
                   name: lambda-infra
-                  template: app/infra/aws/infra.yaml
+                  template: app/infra/aws/infra.yml
                   no-fail-on-empty-changeset: "1"
                   parameter-overrides: >-
                     CognitoIdentityPoolId=${{ steps.create-login.outputs.identityPoolId }}
@@ -60,7 +61,7 @@ jobs:
                 scope: 'resourceGroup'
                 subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
                 resource-group-name: ${{ secrets.AZURE_RESOURCE_GROUP }}
-                template-file: infra/azure/main.bicep
+                template-file: app/infra/azure/main.bicep
                 parameters: |
                   oidcAudience: ${{ steps.create-login.outputs.identityPoolId }}
                   subject: ${{ steps.create-login.outputs.identity }}
