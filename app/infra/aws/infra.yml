@@ -48,7 +48,7 @@ Resources:
       MemorySize: 128
       Environment:
         Variables:
-          IDENTITY_POOL_ARN: Resource: !Sub 'arn:aws:cognito-identity:${AWS::Region}:${AWS::AccountId}:identitypool/${CognitoIdentityPoolId}'
+          IDENTITY_POOL_ARN: !Sub 'arn:aws:cognito-identity:${AWS::Region}:${AWS::AccountId}:identitypool/${CognitoIdentityPoolId}'
 
 Outputs:
   LambdaFunctionArn:
