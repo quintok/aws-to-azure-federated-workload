@@ -3,7 +3,7 @@ on:
     workflow_dispatch:
     push:
         paths: 
-        - 'app/**'
+        - 'app/infra**'
         - .github/workflows/app-run.yml
         branches:
         - main
@@ -52,7 +52,9 @@ jobs:
                   no-fail-on-empty-changeset: "1"
                   parameter-overrides: >-
                     CognitoIdentityPoolId=${{ steps.create-cognito-login.outputs.identityPoolId }}
+                    EntraTenantId=${{ secrets.AZURE_TENANT_ID }}
             - name: deploy-azure-resources
+              id: deploy-azure-resources
               uses: azure/bicep-deploy@v2
               with:
                 name: 'aws-workload-federated-identity'

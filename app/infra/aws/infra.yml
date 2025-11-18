@@ -8,6 +8,10 @@ Parameters:
     Description: Cognito Identity Pool ID
     AllowedPattern: '[a-z0-9-]+:[a-f0-9-]+'
     ConstraintDescription: Must be a valid Cognito Identity Pool ID
+  EntraTenantId:
+    Type: String
+    Description: Azure Entra Tenant ID
+    AllowedPattern: '[0-9a-fA-F-]{36}'
 
 Resources:
   LambdaExecutionRole:
@@ -49,6 +53,7 @@ Resources:
       Environment:
         Variables:
           IDENTITY_POOL_ARN: !Sub 'arn:aws:cognito-identity:${AWS::Region}:${AWS::AccountId}:identitypool/${CognitoIdentityPoolId}'
+          ENTRA_TENANT_ID: !Ref EntraTenantId
 
 Outputs:
   LambdaFunctionArn:
