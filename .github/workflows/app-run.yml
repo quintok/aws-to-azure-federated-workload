@@ -51,7 +51,7 @@ jobs:
                   template: app/infra/aws/infra.yml
                   no-fail-on-empty-changeset: "1"
                   parameter-overrides: >-
-                    CognitoIdentityPoolId=${{ steps.create-login.outputs.identityPoolId }}
+                    CognitoIdentityPoolId=${{ steps.create-cognito-login.outputs.identityPoolId }}
             - name: deploy-azure-resources
               uses: azure/bicep-deploy@v2
               with:
@@ -63,5 +63,5 @@ jobs:
                 resource-group-name: ${{ secrets.AZURE_RESOURCE_GROUP }}
                 template-file: app/infra/azure/main.bicep
                 parameters: |
-                  oidcAudience: ${{ steps.create-login.outputs.identityPoolId }}
-                  subject: ${{ steps.create-login.outputs.identity }}
+                  oidcAudience: ${{ steps.create-cognito-login.outputs.identityPoolId }}
+                  subject: ${{ steps.create-cognito-login.outputs.identity }}
