@@ -51,7 +51,7 @@ jobs:
                   template: app/infra/aws/infra.yml
                   no-fail-on-empty-changeset: "1"
                   parameter-overrides: >-
-                    CognitoIdentityPoolId=${{ steps.create-cognito-login.outputs.identityPoolId }}
+                    CognitoIdentityPoolId=${{ steps.create-cognito-login.outputs.identityPoolId }},
                     EntraTenantId=${{ secrets.AZURE_TENANT_ID }}
             - name: deploy-azure-resources
               id: deploy-azure-resources
