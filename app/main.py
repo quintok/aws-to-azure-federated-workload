@@ -4,7 +4,7 @@ from typing import List
 
 import boto3
 from azure.identity import ClientAssertionCredential
-from azure.core.exceptions import ClientAuthenticationError, CredentialUnavailableError
+from azure.core.exceptions import ClientAuthenticationError
 
 
 # Environment configuration
@@ -42,7 +42,7 @@ def lambda_handler(event, context):
             "expires_on": token.expires_on,
         }
         return {"statusCode": 200, "body": json.dumps(body)}
-    except (CredentialUnavailableError, ClientAuthenticationError) as exc:
+    except (ClientAuthenticationError) as exc:
         return {"statusCode": 401, "body": json.dumps({"error": str(exc)})}
     except Exception as exc:  # pylint: disable=broad-except
         return {"statusCode": 500, "body": json.dumps({"error": str(exc)})}
