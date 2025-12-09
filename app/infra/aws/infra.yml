@@ -14,7 +14,7 @@ Parameters:
   AwsParametersAndSecretsLayerVersion:
     Type: Number
     Description: version number
-    Default: 21
+    Default: 22
 
 Resources:
   LambdaExecutionRole:
