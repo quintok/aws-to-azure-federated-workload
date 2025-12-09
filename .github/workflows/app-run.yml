@@ -27,22 +27,10 @@ jobs:
                   allow-no-subscriptions: true
             - id: create-cognito-login
               run: |
-                DEVELOPER_PROVIDER_NAME=$(aws cloudformation describe-stacks \
-                    --stack-name infra-stack \
-                    --query 'Stacks[0].Outputs[?OutputKey==`DeveloperProviderName`].OutputValue' \
-                    --output text)
-                IDENTITY_POOL_ID=$(aws cloudformation describe-stacks \
-                    --stack-name infra-stack \
-                    --query 'Stacks[0].Outputs[?OutputKey==`IdentityPoolId`].OutputValue' \
-                    --output text)
-                echo "identityPoolId=$IDENTITY_POOL_ID" >> $GITHUB_OUTPUT
-                IDENTITY_ID=$(aws cognito-identity get-open-id-token-for-developer-identity \
-                    --identity-pool-id $IDENTITY_POOL_ID  \
-                    --logins $DEVELOPER_PROVIDER_NAME=${{ secrets.APPLICATION_ID }} \
-                    --region ap-southeast-2 \
-                    --query IdentityId \
-                    --output text)
-                echo "identity=$IDENTITY_ID" >> $GITHUB_OUTPUT
+                ISSUER_IDENTIFIER=$(aws iam get-outbound-web-identity-federation-info \
+                     --query 'IssuerIdentifier'\
+                     --output text)
+                echo "issuer=$ISSUER_IDENTIFIER" >> $GITHUB_OUTPUT
             - name: deploy-lambda-infra
               id: deploy-lambda-infra
               uses: aws-actions/aws-cloudformation-github-deploy@v1
@@ -65,5 +53,5 @@ jobs:
                 resource-group-name: ${{ secrets.AZURE_RESOURCE_GROUP }}
                 template-file: app/infra/azure/main.bicep
                 parameters: |
-                  oidcAudience: ${{ steps.create-cognito-login.outputs.identityPoolId }}
-                  subject: ${{ steps.create-cognito-login.outputs.identity }}
+                  subject: ${{ steps.deploy-lambda-infra.outputs.LambdaExecutionRoleArn }}
+                  issuer: ${{ steps.create-cognito-login.outputs.issuer }}

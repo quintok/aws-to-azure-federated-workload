@@ -1,20 +1,22 @@
 extension microsoftgraph
 
-param oidcAudience string
 param subject string
+param issuer string
 param appName string = 'my-aws-app'
 
 // --- GitHub Credentials
-resource githubApp 'Microsoft.Graph/applications@beta' = {
+resource myAwsApp 'Microsoft.Graph/applications@beta' = {
   displayName: 'my-aws-app'
   uniqueName: appName
 
-  resource githubFedAuth 'federatedIdentityCredentials@beta' = {
+  resource awsFedAuth 'federatedIdentityCredentials@beta' = {
     name: '${appName}/cognito-federated-credential'
     audiences: [
-      oidcAudience
+      'api://AzureADTokenExchange'
     ]
-    issuer: 'https://cognito-identity.amazonaws.com'
+    issuer: issuer
     subject: subject
   }
 }
+
+output appId string = myAwsApp.appId
