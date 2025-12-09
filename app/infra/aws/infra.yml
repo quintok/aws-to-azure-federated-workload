@@ -50,7 +50,7 @@ Resources:
     Properties:
       FunctionName: !Sub '${AWS::StackName}-function'
       Runtime: python3.11
-      Handler: index.handler
+      Handler: main.lambda_handler
       Role: !GetAtt LambdaExecutionRole.Arn
       Layers:
         - !Sub 'arn:aws:lambda:${AWS::Region}:665172237481:layer:AWS-Parameters-and-Secrets-Lambda-Extension:${AwsParametersAndSecretsLayerVersion}'

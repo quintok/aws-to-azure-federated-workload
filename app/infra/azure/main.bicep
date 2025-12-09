@@ -10,7 +10,7 @@ resource myAwsApp 'Microsoft.Graph/applications@beta' = {
   uniqueName: appName
 
   resource awsFedAuth 'federatedIdentityCredentials@beta' = {
-    name: '${appName}/cognito-federated-credential'
+    name: '${appName}/sts-federated-credential'
     audiences: [
       'api://AzureADTokenExchange'
     ]

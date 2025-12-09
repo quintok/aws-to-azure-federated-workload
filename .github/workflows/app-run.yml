@@ -1,12 +1,12 @@
 ---
 on:
-    workflow_dispatch:
-    push:
-        paths: 
-        - 'app/infra**'
-        - .github/workflows/app-run.yml
-        branches:
-        - main
+  workflow_dispatch:
+  push:
+    paths: 
+    - 'app/**'
+    - .github/workflows/app-run.yml
+    branches:
+    - main
 
 jobs:
     app:
@@ -16,6 +16,9 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: '3.11'
             - uses: aws-actions/configure-aws-credentials@v4
               with:
                   role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
@@ -25,7 +28,7 @@ jobs:
                   client-id: ${{ secrets.AZURE_CLIENT_ID }}
                   tenant-id: ${{ secrets.AZURE_TENANT_ID }}
                   allow-no-subscriptions: true
-            - id: create-cognito-login
+            - id: get-iam-issuer
               run: |
                 ISSUER_IDENTIFIER=$(aws iam get-outbound-web-identity-federation-info \
                      --query 'IssuerIdentifier'\
@@ -40,6 +43,27 @@ jobs:
                   no-fail-on-empty-changeset: "1"
                   parameter-overrides: >-
                     EntraTenantId=${{ secrets.AZURE_TENANT_ID }}
+            - name: Build Lambda zip via uv
+              id: build-zip
+              run: |
+                set -euo pipefail
+                cd app
+                python -m pip install --upgrade pip
+                python -m pip install uv
+                rm -rf build function.zip
+                # Install dependencies into build/ (hash-verified)
+                uv pip install --require-hashes --target build -r requirements.txt
+                # Add function code
+                cp main.py build/
+                cd build
+                zip -r ../function.zip .
+            - name: Deploy Lambda code
+              id: deploy-lambda-code
+              run: |
+                aws lambda update-function-code \
+                  --function-name "${{ steps.deploy-lambda-infra.outputs.LambdaFunctionName }}" \
+                  --zip-file fileb://app/function.zip
+                aws lambda wait function-updated --function-name "${{ steps.deploy-lambda-infra.outputs.LambdaFunctionName }}"
             - name: deploy-azure-resources
               id: deploy-azure-resources
               uses: azure/bicep-deploy@v2
@@ -53,4 +77,5 @@ jobs:
                 template-file: app/infra/azure/main.bicep
                 parameters: |
                   subject: ${{ steps.deploy-lambda-infra.outputs.LambdaExecutionRoleArn }}
-                  issuer: ${{ steps.create-cognito-login.outputs.issuer }}
+                  issuer: ${{ steps.get-iam-issuer.outputs.issuer }}
+                  
