@@ -53,7 +53,7 @@ Resources:
       Handler: index.handler
       Role: !GetAtt LambdaExecutionRole.Arn
       Layers:
-        - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:AWS-Parameters-and-Secrets-Lambda-Extension:${AwsParametersAndSecretsLayerVersion}'
+        - !Sub 'arn:aws:lambda:${AWS::Region}:665172237481:layer:AWS-Parameters-and-Secrets-Lambda-Extension:${AwsParametersAndSecretsLayerVersion}'
       Code:
         ZipFile: |
           # Placeholder - actual code deployed via GitHub Actions
