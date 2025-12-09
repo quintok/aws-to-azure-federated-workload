@@ -18,7 +18,7 @@ jobs:
             - uses: actions/checkout@v4
             - uses: actions/setup-python@v5
               with:
-                  python-version: '3.11'
+                  python-version: '3.12'
             - uses: aws-actions/configure-aws-credentials@v4
               with:
                   role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
@@ -77,7 +77,7 @@ jobs:
                 function-name: ${{ steps.deploy-lambda-infra.outputs.LambdaFunctionName }}
                 code-artifacts-dir: app/build
                 handler: main.lambda_handler
-                runtime: python3.11
+                runtime: python3.12
                 environment: '{"ENTRA_TENANT_ID": "${{ secrets.AZURE_TENANT_ID }}", "ENTRA_CLIENT_ID": "${{steps.deploy-azure-resources.outputs.appId }}" }'
             - name: Wait for Lambda update
               run: |

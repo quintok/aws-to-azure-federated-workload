@@ -49,7 +49,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Sub '${AWS::StackName}-function'
-      Runtime: python3.11
+      Runtime: python3.12
       Handler: main.lambda_handler
       Role: !GetAtt LambdaExecutionRole.Arn
       Layers:

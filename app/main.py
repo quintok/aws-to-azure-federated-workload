@@ -8,8 +8,8 @@ from azure.core.exceptions import ClientAuthenticationError, CredentialUnavailab
 
 
 # Environment configuration
-AZURE_TENANT_ID = os.environ["AZURE_TENANT_ID"]  # tenant / directory ID
-AZURE_CLIENT_ID = os.environ["AZURE_CLIENT_ID"]  # service principal (federated credential)
+AZURE_TENANT_ID = os.environ["ENTRA_TENANT_ID"]
+AZURE_CLIENT_ID = os.environ["ENTRA_CLIENT_ID"]
 
 AZURE_SCOPES: List[str] = ["https://management.azure.com/.default"]
 FEDERATED_TOKEN_AUDIENCE = "api://AzureADTokenExchange"
