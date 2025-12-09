@@ -65,7 +65,7 @@ jobs:
                 python -m pip install --upgrade pip
                 python -m pip install uv
                 rm -rf build function.zip
-                # Install dependencies into build/ (hash-verified)
+                uv pip freeze > requirements.txt
                 uv pip install --require-hashes --target build -r requirements.txt
                 # Add function code
                 cp main.py build/
