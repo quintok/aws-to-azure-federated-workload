@@ -43,6 +43,20 @@ jobs:
                   no-fail-on-empty-changeset: "1"
                   parameter-overrides: >-
                     EntraTenantId=${{ secrets.AZURE_TENANT_ID }}
+            - name: deploy-azure-resources
+              id: deploy-azure-resources
+              uses: azure/bicep-deploy@v2
+              with:
+                name: 'aws-workload-federated-identity'
+                type: 'deployment'
+                operation: 'create'
+                scope: 'resourceGroup'
+                subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+                resource-group-name: ${{ secrets.AZURE_RESOURCE_GROUP }}
+                template-file: app/infra/azure/main.bicep
+                parameters: |
+                  subject: ${{ steps.deploy-lambda-infra.outputs.LambdaExecutionRoleArn }}
+                  issuer: ${{ steps.get-iam-issuer.outputs.issuer }}
             - name: Build Lambda zip via uv
               id: build-zip
               run: |
@@ -58,24 +72,13 @@ jobs:
                 cd build
                 zip -r ../function.zip .
             - name: Deploy Lambda code
-              id: deploy-lambda-code
-              run: |
-                aws lambda update-function-code \
-                  --function-name "${{ steps.deploy-lambda-infra.outputs.LambdaFunctionName }}" \
-                  --zip-file fileb://app/function.zip
-                aws lambda wait function-updated --function-name "${{ steps.deploy-lambda-infra.outputs.LambdaFunctionName }}"
-            - name: deploy-azure-resources
-              id: deploy-azure-resources
-              uses: azure/bicep-deploy@v2
+              uses: aws-actions/aws-lambda-deploy@v1
               with:
-                name: 'aws-workload-federated-identity'
-                type: 'deployment'
-                operation: 'create'
-                scope: 'resourceGroup'
-                subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-                resource-group-name: ${{ secrets.AZURE_RESOURCE_GROUP }}
-                template-file: app/infra/azure/main.bicep
-                parameters: |
-                  subject: ${{ steps.deploy-lambda-infra.outputs.LambdaExecutionRoleArn }}
-                  issuer: ${{ steps.get-iam-issuer.outputs.issuer }}
-                  
+                function-name: ${{ steps.deploy-lambda-infra.outputs.LambdaFunctionName }}
+                code-artifacts-dir: app/
+                handler: main.lambda_handler
+                runtime: python3.11
+                environment: '{"ENTRA_TENANT_ID": "${{ secrets.AZURE_TENANT_ID }}", "ENTRA_CLIENT_ID": "${{steps.deploy-azure-resources.outputs.appId }}" }'
+            - name: Wait for Lambda update
+              run: |
+                aws lambda wait function-updated --function-name "${{ steps.deploy-lambda-infra.outputs.LambdaFunctionName }}"
