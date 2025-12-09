@@ -75,7 +75,7 @@ jobs:
               uses: aws-actions/aws-lambda-deploy@v1
               with:
                 function-name: ${{ steps.deploy-lambda-infra.outputs.LambdaFunctionName }}
-                code-artifacts-dir: app/
+                code-artifacts-dir: app/build
                 handler: main.lambda_handler
                 runtime: python3.11
                 environment: '{"ENTRA_TENANT_ID": "${{ secrets.AZURE_TENANT_ID }}", "ENTRA_CLIENT_ID": "${{steps.deploy-azure-resources.outputs.appId }}" }'
