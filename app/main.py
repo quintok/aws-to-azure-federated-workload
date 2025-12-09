@@ -44,5 +44,5 @@ def lambda_handler(event, context):
         return {"statusCode": 200, "body": json.dumps(body)}
     except (ClientAuthenticationError) as exc:
         return {"statusCode": 401, "body": json.dumps({"error": str(exc)})}
-    except Exception as exc:  # pylint: disable=broad-except
-        return {"statusCode": 500, "body": json.dumps({"error": str(exc)})}
+#    except Exception as exc:
+#        return {"statusCode": 500, "body": json.dumps({"error": str(exc)})}
