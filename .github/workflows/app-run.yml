@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     paths: 
-    - 'app/**'
+    - 'aws-app/**'
     - .github/workflows/app-run.yml
     branches:
     - main
@@ -39,7 +39,7 @@ jobs:
               uses: aws-actions/aws-cloudformation-github-deploy@v1
               with:
                   name: lambda-infra
-                  template: app/infra/aws/infra.yml
+                  template: aws-app/infra/aws/infra.yml
                   no-fail-on-empty-changeset: "1"
                   parameter-overrides: >-
                     EntraTenantId=${{ secrets.AZURE_TENANT_ID }}
@@ -53,7 +53,7 @@ jobs:
                 scope: 'resourceGroup'
                 subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
                 resource-group-name: ${{ secrets.AZURE_RESOURCE_GROUP }}
-                template-file: app/infra/azure/main.bicep
+                template-file: aws-app/infra/azure/main.bicep
                 parameters: |
                   subject: ${{ steps.deploy-lambda-infra.outputs.LambdaExecutionRoleArn }}
                   issuer: ${{ steps.get-iam-issuer.outputs.issuer }}
@@ -74,7 +74,7 @@ jobs:
               uses: aws-actions/aws-lambda-deploy@v1
               with:
                 function-name: ${{ steps.deploy-lambda-infra.outputs.LambdaFunctionName }}
-                code-artifacts-dir: app/build
+                code-artifacts-dir: aws-app/build
                 handler: main.lambda_handler
                 runtime: python3.12
                 environment: '{"ENTRA_TENANT_ID": "${{ secrets.AZURE_TENANT_ID }}", "ENTRA_CLIENT_ID": "${{steps.deploy-azure-resources.outputs.appId }}", "AZURE_SUBSCRIPTION_ID": "${{ secrets.AZURE_SUBSCRIPTION_ID }}" }'
