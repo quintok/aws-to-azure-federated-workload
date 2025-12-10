@@ -36,17 +36,14 @@ def lambda_handler(event, context):
     """Acquire an Azure access token using the AWS-issued web identity token."""
     storage_client = StorageManagementClient(_credential, SUBSCRIPTION_ID)
     accounts = storage_client.storage_accounts.list()
-    found = False
+    storageAccounts = []
     for account in accounts:
-        found = True
-        print(f"Name: {account.name}")
-        print(f"Resource Group: {account.id.split('/')[4]}")
-        print(f"Location: {account.location}")
-        print(f"Kind: {account.kind}")
-        print(f"SKU: {account.sku.name}")
-        print("-" * 40)
+        storageAccounts.append({
+            "name": account.name,
+            "resource_group": account.id.split('/')[4],
+            "location": account.location,
+            "kind": account.kind,
+            "sku": account.sku.name
+        })
 
-    if not found:
-        print("No storage accounts found.")
-
-    return {"statusCode": 200, "body": len(accounts)}
+    return {"statusCode": 200, "body": json.dumps(storageAccounts)}
