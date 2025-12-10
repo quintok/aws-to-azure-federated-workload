@@ -81,3 +81,7 @@ jobs:
             - name: Wait for Lambda update
               run: |
                 aws lambda wait function-updated --function-name "${{ steps.deploy-lambda-infra.outputs.LambdaFunctionName }}"
+            - name: Execute lambda
+              run: |
+                aws lambda invoke --function-name "${{ steps.deploy-lambda-infra.outputs.LambdaFunctionName }}" file.txt
+                cat file.txt
