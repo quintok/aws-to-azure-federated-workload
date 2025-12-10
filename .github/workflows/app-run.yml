@@ -65,7 +65,6 @@ jobs:
                 python -m pip install --upgrade pip
                 python -m pip install uv
                 rm -rf build function.zip
-                uv pip freeze > requirements.txt
                 uv pip install --target build -r requirements.txt
                 # Add function code
                 cp main.py build/
