@@ -40,7 +40,6 @@ Resources:
                 Resource: '*'
                 Condition:
                   StringEquals:
-                    ForAnyValue: true
                     sts:IdentityTokenAudience: !Ref Audience
                   NumericLessThanEquals:
                     sts:DurationSeconds: 300
