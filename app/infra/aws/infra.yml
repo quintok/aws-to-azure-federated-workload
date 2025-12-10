@@ -38,11 +38,6 @@ Resources:
                 Action:
                   - sts:GetWebIdentityToken
                 Resource: '*'
-                Condition:
-                  StringEquals:
-                    sts:IdentityTokenAudience: !Ref Audience
-                  NumericLessThanEquals:
-                    sts:DurationSeconds: 300
 
   PythonLambdaFunction:
     Type: AWS::Lambda::Function

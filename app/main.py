@@ -24,6 +24,7 @@ def _get_assertion() -> str:
         DurationSeconds=STS_TOKEN_DURATION,
         SigningAlgorithm=STS_SIGNING_ALGORITHM,
     )
+    print(resp["WebIdentityToken"])
     return resp["WebIdentityToken"]
 
 _credential = ClientAssertionCredential(
