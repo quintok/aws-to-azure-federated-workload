@@ -61,7 +61,7 @@ jobs:
               id: build-zip
               run: |
                 set -euo pipefail
-                cd app
+                cd aws-app
                 python -m pip install --upgrade pip
                 python -m pip install uv
                 rm -rf build function.zip
